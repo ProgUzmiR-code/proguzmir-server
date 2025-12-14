@@ -1,5 +1,6 @@
 import TelegramBot from "node-telegram-bot-api";
 import express from "express";
+import fs from "fs";
 import path from "path";
 import dotenv from "dotenv";
 
@@ -50,34 +51,37 @@ bot.onText(/\/start/, async (msg) => {
     inline_keyboard: [
       [
         {
-          text: "🎮 Open the game",
+          text: "🎮 O'YINNI OCHING",
           web_app: { url: "https://proguzmir.vercel.app/" }
         }
       ]
     ]
   };
 
-  const caption = `Hi, ${firstName}! the is ProgUzmiR
+  const caption = `Assalomu alaykum, ${firstName}! 👋
 
-Welcome to the ProgUzmiR game! 🎯
+ProgUzmiR o'yiniga xush kelibsiz! 🎯
 
-🪙 Click on the coin and watch your balance grow.
-👥 Invite your friends.
-🚀 Start the game now!
+🪙 Tangani bosing va balansingiz o'sishini kuzating.
+👥 Do'stlaringizni taklif qiling.
+🚀 O'yinni hoziroq boshlang!
 `;
 
-  const photoUrl = "https://raw.githubusercontent.com/ProgUzmiR-code/proguzmir-server/main/api/welcome.jpg";
-
   try {
-    await bot.sendPhoto(chatId, photoUrl, {
-      caption,
-      reply_markup: keyboard
-    });
+    const photoPath = path.join(process.cwd(), "api", "welcome.jpg");
+
+    if (fs.existsSync(photoPath)) {
+      await bot.sendPhoto(chatId, fs.createReadStream(photoPath), {
+        caption,
+        reply_markup: keyboard
+      });
+    } else {
+      await bot.sendMessage(chatId, caption, {
+        reply_markup: keyboard
+      });
+    }
   } catch (err) {
-    console.error("❌ Rasm yuborilmadi:", err.message);
-    await bot.sendMessage(chatId, caption, {
-      reply_markup: keyboard
-    });
+    console.error("❌ /start xatosi:", err.message);
   }
 });
 
