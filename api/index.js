@@ -1,6 +1,5 @@
 import TelegramBot from "node-telegram-bot-api";
 import express from "express";
-import fs from "fs";
 import path from "path";
 import dotenv from "dotenv";
 
@@ -68,20 +67,12 @@ ProgUzmiR o'yiniga xush kelibsiz! 🎯
 `;
 
   try {
-    const photoPath = path.join(process.cwd(),"public", "welcome.jpg");
+    const photoUrl = "https://raw.githubusercontent.com/ProgUzmiR-code/proguzmir-server/main/welcome.jpg";
 
-    if (fs.existsSync(photoPath)) {
-      const photoBuffer = fs.readFileSync(photoPath);
-      await bot.sendPhoto(chatId, photoBuffer, {
-        caption,
-        reply_markup: keyboard
-      });
-    } else {
-      console.warn("⚠️  welcome.jpg topilmadi, nur matn yuborilmoqda");
-      await bot.sendMessage(chatId, caption, {
-        reply_markup: keyboard
-      });
-    }
+    await bot.sendPhoto(chatId, photoUrl, {
+      caption,
+      reply_markup: keyboard
+    });
   } catch (err) {
     console.error("❌ /start xatosi:", err.message);
     await bot.sendMessage(chatId, caption, {
