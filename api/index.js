@@ -58,13 +58,13 @@ bot.onText(/\/start/, async (msg) => {
     ]
   };
 
-  const caption = `Assalomu alaykum, ${firstName}! 👋
+  const caption = `Hi, ${firstName} the is ProgUzmiR! 👋
 
-ProgUzmiR o'yiniga xush kelibsiz! 🎯
+Welcome to the ProgUzmiR game! 🎯
 
-🪙 Tangani bosing va balansingiz o'sishini kuzating.
-👥 Do'stlaringizni taklif qiling.
-🚀 O'yinni hoziroq boshlang!
+🪙 Click on the coin and watch your balance grow.
+👥 Invite your friends.
+🚀 Start the game now!
 `;
 
   try {
