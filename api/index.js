@@ -71,17 +71,22 @@ ProgUzmiR o'yiniga xush kelibsiz! 🎯
     const photoPath = path.join(process.cwd(), "welcome.jpg");
 
     if (fs.existsSync(photoPath)) {
-      await bot.sendPhoto(chatId, fs.createReadStream(photoPath), {
+      const photoBuffer = fs.readFileSync(photoPath);
+      await bot.sendPhoto(chatId, photoBuffer, {
         caption,
         reply_markup: keyboard
       });
     } else {
+      console.warn("⚠️  welcome.jpg topilmadi, nur matn yuborilmoqda");
       await bot.sendMessage(chatId, caption, {
         reply_markup: keyboard
       });
     }
   } catch (err) {
     console.error("❌ /start xatosi:", err.message);
+    await bot.sendMessage(chatId, caption, {
+      reply_markup: keyboard
+    }).catch(e => console.error("❌ Backup xabari xatosi:", e.message));
   }
 });
 
