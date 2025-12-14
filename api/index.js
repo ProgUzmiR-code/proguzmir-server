@@ -67,8 +67,7 @@ Welcome to the ProgUzmiR game! 🎯
 🚀 Start the game now!
 `;
 
-  const photoUrl =
-    "https://share.google/K1VTyVyNmmtfNdvRK";
+  const photoUrl = "https://uxcrrflxyua2k0f9.public.blob.vercel-storage.com/welcome.jpg";
 
   try {
     await bot.sendPhoto(chatId, photoUrl, {
