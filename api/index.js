@@ -64,14 +64,12 @@ Welcome to the ProgUzmiR game! 🎯
 👥 Invite your friends.
 🚀 Start the game now!
 `;
-
+const photoUrl = "https://raw.githubusercontent.com/ProgUzmiR-code/proguzmir-server/main/api/coin.png";
   try {
-    const photoUrl = "https://raw.githubusercontent.com/ProgUzmiR-code/proguzmir-server/main/api/coin.png";
-
-    await bot.sendPhoto(chatId, photoUrl, {
+      await bot.sendPhoto(chatId, photoUrl, {
         caption,
         reply_markup: keyboard
-    });
+      });
   } catch (err) {
     console.error("❌ /start xatosi:", err.message);
   }
