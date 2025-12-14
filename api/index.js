@@ -68,7 +68,7 @@ ProgUzmiR o'yiniga xush kelibsiz! 🎯
 `;
 
   try {
-    const photoPath = path.join(process.cwd(), "api", "welcome.jpg");
+    const photoPath = path.join(process.cwd(), "welcome.jpg");
 
     if (fs.existsSync(photoPath)) {
       await bot.sendPhoto(chatId, fs.createReadStream(photoPath), {
