@@ -68,7 +68,7 @@ ProgUzmiR o'yiniga xush kelibsiz! 🎯
 `;
 
   try {
-    const photoPath = path.join(process.cwd(), "welcome.jpg");
+    const photoPath = path.join(process.cwd(),"public", "welcome.jpg");
 
     if (fs.existsSync(photoPath)) {
       const photoBuffer = fs.readFileSync(photoPath);
