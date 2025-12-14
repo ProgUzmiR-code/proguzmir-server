@@ -58,10 +58,13 @@ bot.onText(/\/start/, async (msg) => {
     ]
   };
 
-  const caption = `Hi, ${firstName}! 👋
+  const caption = `Hi, ${firstName}! the is ProgUzmiR
 
-Welcome to ProgUzmiR 🎯
-🪙 Click the coin and grow your balance!
+Welcome to the ProgUzmiR game! 🎯
+
+🪙 Click on the coin and watch your balance grow.
+👥 Invite your friends.
+🚀 Start the game now!
 `;
 
   const photoUrl =
