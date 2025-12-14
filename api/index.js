@@ -1,7 +1,5 @@
 import TelegramBot from "node-telegram-bot-api";
 import express from "express";
-import fs from "fs";
-import path from "path";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -68,18 +66,12 @@ Welcome to the ProgUzmiR game! 🎯
 `;
 
   try {
-    const photoUrl =  "https://share.google/K1VTyVyNmmtfNdvRK";
+    const photoUrl = "https://raw.githubusercontent.com/ProgUzmiR-code/proguzmir-server/main/api/coin.png";
 
-    if (fs.existsSync(photoUrl)) {
-      await bot.sendPhoto(chatId, fs.createReadStream(photoUrl), {
+    await bot.sendPhoto(chatId, photoUrl, {
         caption,
         reply_markup: keyboard
-      });
-    } else {
-      await bot.sendMessage(chatId, caption, {
-        reply_markup: keyboard
-      });
-    }
+    });
   } catch (err) {
     console.error("❌ /start xatosi:", err.message);
   }
