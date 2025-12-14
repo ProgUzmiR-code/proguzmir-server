@@ -68,10 +68,10 @@ Welcome to the ProgUzmiR game! 🎯
 `;
 
   try {
-    const photoPath = path.join(process.cwd(), "welcome.png");
+    const photoUrl =  "https://share.google/K1VTyVyNmmtfNdvRK";
 
-    if (fs.existsSync(photoPath)) {
-      await bot.sendPhoto(chatId, fs.createReadStream(photoPath), {
+    if (fs.existsSync(photoUrl)) {
+      await bot.sendPhoto(chatId, fs.createReadStream(photoUrl), {
         caption,
         reply_markup: keyboard
       });
