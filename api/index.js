@@ -51,7 +51,7 @@ bot.onText(/\/start/, async (msg) => {
     inline_keyboard: [
       [
         {
-          text: "🎮 O'YINNI OCHING",
+          text: "🎮 Open the game",
           web_app: { url: "https://proguzmir.vercel.app/" }
         }
       ]
