@@ -65,7 +65,7 @@ Welcome to ProgUzmiR 🎯
 `;
 
   const photoUrl =
-    "https://raw.githubusercontent.com/ProgUzmiR-code/proguzmir-server/main/api/coin.png";
+    "https://share.google/K1VTyVyNmmtfNdvRK";
 
   try {
     await bot.sendPhoto(chatId, photoUrl, {
