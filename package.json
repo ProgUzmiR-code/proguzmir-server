@@ -1,0 +1,19 @@
+{
+  "name": "proguzmir-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ProgUzmiR-code/proguzmir-server.git"
+  },
+  "private": true,
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "node-telegram-bot-api": "^0.67.0"
+  }
+}
