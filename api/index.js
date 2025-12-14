@@ -58,30 +58,25 @@ bot.onText(/\/start/, async (msg) => {
     ]
   };
 
-  const caption = `Hi, ${firstName} the is ProgUzmiR! 👋
+  const caption = `Hi, ${firstName}! 👋
 
-Welcome to the ProgUzmiR game! 🎯
-
-🪙 Click on the coin and watch your balance grow.
-👥 Invite your friends.
-🚀 Start the game now!
+Welcome to ProgUzmiR 🎯
+🪙 Click the coin and grow your balance!
 `;
 
-  try {
-    const photoPath = path.join(process.cwd(), "welcome.png");
+  const photoUrl =
+    "https://raw.githubusercontent.com/ProgUzmiR-code/proguzmir-server/main/api/coin.png";
 
-    if (fs.existsSync(photoPath)) {
-      await bot.sendPhoto(chatId, fs.createReadStream(photoPath), {
-        caption,
-        reply_markup: keyboard
-      });
-    } else {
-      await bot.sendMessage(chatId, caption, {
-        reply_markup: keyboard
-      });
-    }
+  try {
+    await bot.sendPhoto(chatId, photoUrl, {
+      caption,
+      reply_markup: keyboard
+    });
   } catch (err) {
-    console.error("❌ /start xatosi:", err.message);
+    console.error("❌ Rasm yuborilmadi:", err.message);
+    await bot.sendMessage(chatId, caption, {
+      reply_markup: keyboard
+    });
   }
 });
 
