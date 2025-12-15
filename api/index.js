@@ -1,7 +1,5 @@
 import TelegramBot from "node-telegram-bot-api";
 import express from "express";
-import path from "path";
-import axios from "axios";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -69,10 +67,8 @@ ProgUzmiR o'yiniga xush kelibsiz! 🎯
 
   try {
     const photoUrl = "https://raw.githubusercontent.com/ProgUzmiR-code/proguzmir-server/main/welcome.jpg";
-    const response = await axios.get(photoUrl, { responseType: 'arraybuffer'});
 
-
-    await bot.sendPhoto(chatId, Buffer.from(response.data, "binary"), {
+    await bot.sendPhoto(chatId, photoUrl, {
       caption,
       reply_markup: keyboard
     });
