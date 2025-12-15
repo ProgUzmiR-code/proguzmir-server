@@ -44,7 +44,6 @@ app.get("/", (req, res) => {
 
 // /start komandasi
 bot.onText(/\/start/, async (msg) => {
-  try {
   const chatId = msg.chat.id;
   const firstName = msg.from.first_name || "O'yinchi";
 
@@ -68,30 +67,24 @@ ProgUzmiR o'yiniga xush kelibsiz! 🎯
 🚀 O'yinni hoziroq boshlang!
 `;
 
-  const photo = path.join(process.cwd(), "api", "welcome.jpg");
-  
-      if (fs.existsSync(photo) && fs.statSync(photo).size > 0) {
-        const stream = fs.createReadStream(photo);
-        await bot.sendPhoto(chatId, stream, {
-          caption,
-          reply_markup: keyboard,
-          filename: "welcome.jpg",
-          contentType: "image/jpg"
-        });
-      } else {
-        await bot.sendMessage(chatId, caption, {
-          reply_markup: keyboard,
-          parse_mode: "HTML"
-        });
-      }
-    } catch (err) {
-      console.error("❌ /start xatosi:", err.message);
-      try {
-        await bot.sendMessage(msg.chat.id, "Xatolik yuz berdi. Keyinroq urinib ko'ring.");
-      } catch (e) {
-        console.error("Xabar yuborish muvaffaq bo'lmadi:", e.message);
-      }
+  try {
+    const photoPath = path.join(process.cwd(), "welcome.jpg");
+
+    if (fs.existsSync(photoPath)) {
+      await bot.sendPhoto(chatId, fs.createReadStream(photoPath), {
+        caption,
+        reply_markup: keyboard,
+        filename: "welcome.jpg",
+        contentType: "image/jpg"
+      });
+    } else {
+      await bot.sendMessage(chatId, caption, {
+        reply_markup: keyboard
+      });
     }
+  } catch (err) {
+    console.error("❌ /start xatosi:", err.message);
+  }
 });
 
 // Server ishga tushadi
