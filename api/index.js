@@ -7,9 +7,12 @@ import { fileURLToPath } from "url";
 
 dotenv.config();
 
-/* __dirname (ESM uchun) */
+/* __dirname (ESM) */
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+/* Root papkani aniqlash */
+const ROOT_DIR = path.resolve(__dirname, "..");
 
 /* ENV */
 const TOKEN = process.env.BOT_TOKEN;
@@ -32,15 +35,15 @@ const WEBHOOK_URL = `${BASE_URL}${WEBHOOK_PATH}`;
 await bot.setWebHook(WEBHOOK_URL);
 console.log("✅ Webhook o‘rnatildi:", WEBHOOK_URL);
 
-/* Telegram update */
+/* Update */
 app.post(WEBHOOK_PATH, (req, res) => {
   bot.processUpdate(req.body);
   res.sendStatus(200);
 });
 
-/* Health check (Render uchun foydali) */
+/* Health check */
 app.get("/", (req, res) => {
-  res.json({ ok: true, status: "Bot ishlamoqda 🚀" });
+  res.json({ ok: true, status: "Bot ishlayapti 🚀" });
 });
 
 /* /start */
@@ -62,16 +65,14 @@ bot.onText(/\/start/, async (msg) => {
       [
         {
           text: "🎮 O‘YINNI OCHISH",
-          web_app: {
-            url: "https://proguzmir.vercel.app/"
-          }
+          web_app: { url: "https://proguzmir.vercel.app/" }
         }
       ]
     ]
   };
 
   try {
-    const photoPath = path.join(__dirname, "welcome.jpg");
+    const photoPath = path.join(ROOT_DIR, "welcome.jpg");
 
     if (fs.existsSync(photoPath)) {
       const photoBuffer = fs.readFileSync(photoPath);
