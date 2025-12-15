@@ -1,8 +1,9 @@
 import TelegramBot from "node-telegram-bot-api";
 import express from "express";
-import https from "https";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 import dotenv from "dotenv";
-import * as url from "node:url";
 
 dotenv.config();
 
@@ -20,6 +21,10 @@ if (!BASE_URL) {
 
 const app = express();
 app.use(express.json());
+
+// __dirname o'rnatish (ES modules uchun)
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const projectRoot = path.join(__dirname, '..');
 
 // Telegram bot (WEBHOOK rejim)
 const bot = new TelegramBot(TOKEN, { webHook: true });
@@ -42,17 +47,7 @@ app.get("/", (req, res) => {
   res.json({ ok: true, status: "Bot ishlamoqda 🚀" });
 });
 
-// Rasm yuklash funktsiyasi
-const downloadPhoto = (url) => {
-  return new Promise((resolve, reject) => {
-    https.get(url, (res) => {
-      let data = '';
-      res.setEncoding('base64');
-      res.on('data', (chunk) => { data += chunk; });
-      res.on('end', () => { resolve(data); });
-    }).on('error', reject);
-  });
-};
+
 
 // /start komandasi
 bot.onText(/\/start/, async (msg) => {
@@ -80,11 +75,20 @@ ProgUzmiR o'yiniga xush kelibsiz! 🎯
 `;
 
   try {
-    const url = "https://raw.githubusercontent.com//ProgUzmiR-code//proguzmir-server//main//welcome.jpg";
-    await bot.sendPhoto(chatId, url, {
-      caption,
-      reply_markup: keyboard
-    });
+    const photoPath = path.join(projectRoot, 'welcome.jpg');
+
+    if (fs.existsSync(photoPath)) {
+      const photoStream = fs.createReadStream(photoPath);
+      await bot.sendPhoto(chatId, photoStream, {
+        caption,
+        reply_markup: keyboard
+      });
+    } else {
+      console.warn(`⚠️ welcome.jpg topilmadi: ${photoPath}`);
+      await bot.sendMessage(chatId, caption, {
+        reply_markup: keyboard
+      });
+    }
   } catch (err) {
     console.error("❌ /start xatosi:", err.message);
     await bot.sendMessage(chatId, caption, {
