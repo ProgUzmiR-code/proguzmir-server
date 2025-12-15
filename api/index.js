@@ -80,10 +80,8 @@ ProgUzmiR o'yiniga xush kelibsiz! 🎯
 `;
 
   try {
-    const photoUrl = "https://raw.githubusercontent.com/ProgUzmiR-code/proguzmir-server/main/welcome.jpg";
-    const photoBase64 = await downloadPhoto(photoUrl);
-
-    await bot.sendPhoto(chatId, url, Buffer.from(photoBase64, 'base64'), {
+    const url = "https://raw.githubusercontent.com/ProgUzmiR-code/proguzmir-server/main/welcome.jpg";
+    await bot.sendPhoto(chatId, url, {
       caption,
       reply_markup: keyboard
     });
