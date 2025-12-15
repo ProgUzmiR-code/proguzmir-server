@@ -1,12 +1,10 @@
 {
   "name": "proguzmir-server",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "node api/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node api/index.js"
   },
   "repository": {
     "type": "git",

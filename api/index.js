@@ -2,94 +2,102 @@ import TelegramBot from "node-telegram-bot-api";
 import express from "express";
 import fs from "fs";
 import path from "path";
-import { fileURLToPath } from "url";
 import dotenv from "dotenv";
+import { fileURLToPath } from "url";
 
 dotenv.config();
 
+/* __dirname (ESM uchun) */
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+/* ENV */
 const TOKEN = process.env.BOT_TOKEN;
 const PORT = process.env.PORT || 3000;
-const BASE_URL = process.env.BASE_URL; // Render URL
+const BASE_URL = process.env.BASE_URL;
 
-if (!TOKEN) {
-  throw new Error("❌ BOT_TOKEN topilmadi!");
-}
+if (!TOKEN) throw new Error("❌ BOT_TOKEN topilmadi!");
+if (!BASE_URL) throw new Error("❌ BASE_URL topilmadi!");
 
-if (!BASE_URL) {
-  throw new Error("❌ BASE_URL topilmadi!");
-}
-
+/* Express */
 const app = express();
 app.use(express.json());
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const projectRoot = path.join(__dirname, '..');
-
+/* Telegram bot (Webhook) */
 const bot = new TelegramBot(TOKEN, { webHook: true });
 
-// Webhook ni o‘rnatish
 const WEBHOOK_PATH = `/bot${TOKEN}`;
 const WEBHOOK_URL = `${BASE_URL}${WEBHOOK_PATH}`;
 
 await bot.setWebHook(WEBHOOK_URL);
 console.log("✅ Webhook o‘rnatildi:", WEBHOOK_URL);
 
-// Telegram update qabul qilish
+/* Telegram update */
 app.post(WEBHOOK_PATH, (req, res) => {
   bot.processUpdate(req.body);
   res.sendStatus(200);
 });
 
-// /start komandasi
+/* Health check (Render uchun foydali) */
+app.get("/", (req, res) => {
+  res.json({ ok: true, status: "Bot ishlamoqda 🚀" });
+});
+
+/* /start */
 bot.onText(/\/start/, async (msg) => {
   const chatId = msg.chat.id;
-  const firstName = msg.from.first_name || "O'yinchi";
+  const firstName = msg.from?.first_name || "O'yinchi";
+
+  const caption = `Assalomu alaykum, ${firstName}! 👋
+
+🎮 ProgUzmiR o'yiniga xush kelibsiz!
+
+🪙 Tangani bosing va balansingizni oshiring
+👥 Do‘stlaringizni taklif qiling
+🚀 Hoziroq boshlang!
+`;
 
   const keyboard = {
     inline_keyboard: [
       [
         {
-          text: "🎮 O'YINNI OCHING",
-          web_app: { url: "https://proguzmir.vercel.app/" }
+          text: "🎮 O‘YINNI OCHISH",
+          web_app: {
+            url: "https://proguzmir.vercel.app/"
+          }
         }
       ]
     ]
   };
 
-  const caption = `Assalomu alaykum, ${firstName}! 👋
-
-ProgUzmiR o'yiniga xush kelibsiz! 🎯
-
-🪙 Tangani bosing va balansingiz o'sishini kuzating.
-👥 Do'stlaringizni taklif qiling.
-🚀 O'yinni hoziroq boshlang!
-`;
-
   try {
-    const photoPath = path.join(projectRoot, 'welcome.jpg');
+    const photoPath = path.join(__dirname, "welcome.jpg");
 
     if (fs.existsSync(photoPath)) {
       const photoBuffer = fs.readFileSync(photoPath);
-      await bot.sendPhoto(chatId, photoBuffer, {
-        caption,
-        reply_markup: keyboard
-      });
-      console.log(`✅ /start: Rasm ${firstName} ga yuborildi`);
+
+      await bot.sendPhoto(
+        chatId,
+        {
+          source: photoBuffer,
+          filename: "welcome.jpg"
+        },
+        {
+          caption,
+          reply_markup: keyboard
+        }
+      );
     } else {
-      console.warn(`⚠️ welcome.jpg topilmadi: ${photoPath}`);
       await bot.sendMessage(chatId, caption, {
         reply_markup: keyboard
       });
     }
   } catch (err) {
     console.error("❌ /start xatosi:", err.message);
-    await bot.sendMessage(chatId, caption, {
-      reply_markup: keyboard
-    }).catch(e => console.error("❌ Xabari yuborish xatosi:", e.message));
   }
 });
 
-// Server ishga tushadi
+/* Server */
 app.listen(PORT, () => {
   console.log(`🚀 Server ${PORT}-portda ishlayapti`);
 });
