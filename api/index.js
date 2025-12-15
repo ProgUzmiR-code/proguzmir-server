@@ -6,7 +6,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const TOKEN = process.env.BOT_TOKEN;
+const TOKEN = process.env.BOT_TOKEN || process.env.TELEGRAM_TOKEN;
 const PORT = process.env.PORT || 3000;
 const BASE_URL = process.env.BASE_URL; // Render URL
 
