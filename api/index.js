@@ -82,7 +82,7 @@ ProgUzmiR o'yiniga xush kelibsiz! 🎯
     const photoUrl = "https://raw.githubusercontent.com/ProgUzmiR-code/proguzmir-server/main/welcome.jpg";
     const photoBase64 = await downloadPhoto(photoUrl);
 
-    await bot.sendPhoto(chatId, Buffer.from(photoBase64, 'base64'), {
+    await bot.sendPhoto(chatId, {source: Buffer.from(photoBase64, 'base64'), filename: 'welcome.jpg'}, {
       caption,
       reply_markup: keyboard
     });
