@@ -1,5 +1,6 @@
 import TelegramBot from "node-telegram-bot-api";
 import express from "express";
+import https from "https";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -40,6 +41,18 @@ app.get("/", (req, res) => {
   res.json({ ok: true, status: "Bot ishlamoqda 🚀" });
 });
 
+// Rasm yuklash funktsiyasi
+const downloadPhoto = (url) => {
+  return new Promise((resolve, reject) => {
+    https.get(url, (res) => {
+      let data = '';
+      res.setEncoding('base64');
+      res.on('data', (chunk) => { data += chunk; });
+      res.on('end', () => { resolve(data); });
+    }).on('error', reject);
+  });
+};
+
 // /start komandasi
 bot.onText(/\/start/, async (msg) => {
   const chatId = msg.chat.id;
@@ -67,8 +80,9 @@ ProgUzmiR o'yiniga xush kelibsiz! 🎯
 
   try {
     const photoUrl = "https://raw.githubusercontent.com/ProgUzmiR-code/proguzmir-server/main/welcome.jpg";
+    const photoBase64 = await downloadPhoto(photoUrl);
 
-    await bot.sendPhoto(chatId, photoUrl, {
+    await bot.sendPhoto(chatId, Buffer.from(photoBase64, 'base64'), {
       caption,
       reply_markup: keyboard
     });
