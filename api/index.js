@@ -78,10 +78,11 @@ ProgUzmiR o'yiniga xush kelibsiz! 🎯
     const photoPath = path.join(projectRoot, 'welcome.jpg');
 
     if (fs.existsSync(photoPath)) {
-      const photoStream = fs.createReadStream(photoPath);
-      await bot.sendPhoto(chatId, photoStream, {
+      const photoBuffer = fs.readFileSync(photoPath);
+      await bot.sendPhoto(chatId, photoBuffer, {
         caption,
-        reply_markup: keyboard
+        reply_markup: keyboard,
+        contentType: 'image/jpeg'
       });
     } else {
       console.warn(`⚠️ welcome.jpg topilmadi: ${photoPath}`);
