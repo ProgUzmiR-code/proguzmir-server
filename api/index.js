@@ -2,6 +2,7 @@ import TelegramBot from "node-telegram-bot-api";
 import express from "express";
 import fs from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -15,13 +16,15 @@ if (!TOKEN) {
 }
 
 if (!BASE_URL) {
-  throw new Error("❌ BASE_URL topilmadi! (Render domeni)");
+  throw new Error("❌ BASE_URL topilmadi!");
 }
 
 const app = express();
 app.use(express.json());
 
-// Telegram bot (WEBHOOK rejim)
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const projectRoot = path.join(__dirname, '..');
+
 const bot = new TelegramBot(TOKEN, { webHook: true });
 
 // Webhook ni o‘rnatish
@@ -35,11 +38,6 @@ console.log("✅ Webhook o‘rnatildi:", WEBHOOK_URL);
 app.post(WEBHOOK_PATH, (req, res) => {
   bot.processUpdate(req.body);
   res.sendStatus(200);
-});
-
-// Health check
-app.get("/", (req, res) => {
-  res.json({ ok: true, status: "Bot ishlamoqda 🚀" });
 });
 
 // /start komandasi
@@ -68,20 +66,26 @@ ProgUzmiR o'yiniga xush kelibsiz! 🎯
 `;
 
   try {
-    const photoPath = path.join(process.cwd(), "welcome.png");
+    const photoPath = path.join(projectRoot, 'welcome.jpg');
 
     if (fs.existsSync(photoPath)) {
-      await bot.sendPhoto(chatId, fs.createReadStream(photoPath), {
+      const photoBuffer = fs.readFileSync(photoPath);
+      await bot.sendPhoto(chatId, photoBuffer, {
         caption,
         reply_markup: keyboard
       });
+      console.log(`✅ /start: Rasm ${firstName} ga yuborildi`);
     } else {
+      console.warn(`⚠️ welcome.jpg topilmadi: ${photoPath}`);
       await bot.sendMessage(chatId, caption, {
         reply_markup: keyboard
       });
     }
   } catch (err) {
     console.error("❌ /start xatosi:", err.message);
+    await bot.sendMessage(chatId, caption, {
+      reply_markup: keyboard
+    }).catch(e => console.error("❌ Xabari yuborish xatosi:", e.message));
   }
 });
 
