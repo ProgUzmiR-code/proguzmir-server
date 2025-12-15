@@ -1,104 +1,92 @@
 import TelegramBot from "node-telegram-bot-api";
-import express from "express";
 import fs from "fs";
 import path from "path";
 import dotenv from "dotenv";
-import { fileURLToPath } from "url";
 
-dotenv.config();
+dotenv.config(); // ✅ Call the config method to load .env
+const TOKEN = process.env.BOT_TOKEN || process.env.TELEGRAM_TOKEN;
 
-/* __dirname (ESM) */
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+if (!TOKEN) {
+  throw new Error("❌ BOT_TOKEN yoki TELEGRAM_TOKEN muhit o'zgaruvchisi topilmadi! Vercel Settings > Environment Variables da o'rnatib qo'ying.");
+}
 
-/* Root papkani aniqlash */
-const ROOT_DIR = path.resolve(__dirname, "..");
+const bot = new TelegramBot(TOKEN, {webHook: true, polling: false });
 
-/* ENV */
-const TOKEN = process.env.BOT_TOKEN;
-const PORT = process.env.PORT || 3000;
-const BASE_URL = process.env.BASE_URL;
-
-if (!TOKEN) throw new Error("❌ BOT_TOKEN topilmadi!");
-if (!BASE_URL) throw new Error("❌ BASE_URL topilmadi!");
-
-/* Express */
-const app = express();
-app.use(express.json());
-
-/* Telegram bot (Webhook) */
-const bot = new TelegramBot(TOKEN, { webHook: true });
-
-const WEBHOOK_PATH = `/bot${TOKEN}`;
-const WEBHOOK_URL = `${BASE_URL}${WEBHOOK_PATH}`;
-
-await bot.setWebHook(WEBHOOK_URL);
-console.log("✅ Webhook o‘rnatildi:", WEBHOOK_URL);
-
-/* Update */
-app.post(WEBHOOK_PATH, (req, res) => {
-  bot.processUpdate(req.body);
-  res.sendStatus(200);
-});
-
-/* Health check */
-app.get("/", (req, res) => {
-  res.json({ ok: true, status: "Bot ishlayapti 🚀" });
-});
-
-/* /start */
+// START komandasi
 bot.onText(/\/start/, async (msg) => {
-  const chatId = msg.chat.id;
-  const firstName = msg.from?.first_name || "O'yinchi";
+  try {
+    const chatId = msg.chat.id;
 
-  const caption = `Assalomu alaykum, ${firstName}! 👋
+    const keyboard = {
+      inline_keyboard: [
+        [
+          {
+            text: "🎮 O'YINNI OCHING",
+            web_app: { url: "https://proguzmir.vercel.app/" }
+          }
+        ]
+      ]
+    };
 
-🎮 ProgUzmiR o'yiniga xush kelibsiz!
+    const firstName = msg.from.first_name || "O'yinchi";
+    const caption = `Assalomu alaykum, ${firstName}! 👋
 
-🪙 Tangani bosing va balansingizni oshiring
-👥 Do‘stlaringizni taklif qiling
-🚀 Hoziroq boshlang!
+ProgUzmiR o'yiniga xush kelibsiz! 🎯
+
+🪙 Tangani bosing va balansingiz o'sishini kuzatib boring.
+
+👥 Do'stlaringizni taklif qiling va birga ko'proq tangalar yig'ing!
+
+🚀 O'yinni o'zingiz xohlagandek qilishingiz mumkin.
+
+Keling, boshlaymiz! 💪
 `;
 
-  const keyboard = {
-    inline_keyboard: [
-      [
-        {
-          text: "🎮 O‘YINNI OCHISH",
-          web_app: { url: "https://proguzmir.vercel.app/" }
-        }
-      ]
-    ]
-  };
+    const photo = path.join(process.cwd(),  "welcome.jpg");
 
-  try {
-    const photoPath = path.join(ROOT_DIR, "welcome.jpg");
-
-    if (fs.existsSync(photoPath)) {
-      const photoBuffer = fs.readFileSync(photoPath);
-
-      await bot.sendPhoto(
-        chatId,
-        {
-          source: photoBuffer,
-          filename: "welcome.jpg"
-        },
-        {
-          caption,
-          reply_markup: keyboard
-        }
-      );
+    if (fs.existsSync(photo) && fs.statSync(photo).size > 0) {
+      const stream = fs.createReadStream(photo);
+      await bot.sendPhoto(chatId, stream, {
+        caption,
+        reply_markup: keyboard,
+        filename: "welcome.jpg",
+        contentType: "image/jpg"
+      });
     } else {
       await bot.sendMessage(chatId, caption, {
-        reply_markup: keyboard
+        reply_markup: keyboard,
+        parse_mode: "HTML"
       });
     }
   } catch (err) {
     console.error("❌ /start xatosi:", err.message);
+    try {
+      await bot.sendMessage(msg.chat.id, "Xatolik yuz berdi. Keyinroq urinib ko'ring.");
+    } catch (e) {
+      console.error("Xabar yuborish muvaffaq bo'lmadi:", e.message);
+    }
   }
 });
 
-/* Server */
-app.listen(PORT, () => {
-  console.log(`🚀 Server ${PORT}-portda ishlayapti`);
-});
+
+// Vercel handler
+export default async function handler(req, res) {
+  try {
+    if (req.method === "POST") {
+      const update = req.body;
+
+      if (!update || !update.update_id) {
+        console.warn("⚠️ Noto'g'ri update:", update);
+        return res.status(400).send("Noto'g'ri update");
+      }
+      await bot.processUpdate(update);
+      return res.status(200).send("OK");
+    }
+
+    // GET uchun health check
+    return res.status(200).json({ ok: true, message: "Bot API ishlamoqda" });
+  } catch (err) {
+    console.error("❌ Handler xatosi:", err.message);
+    return res.status(500).send("Xatolik xududi qayta ishlashda");
+  }
+}
