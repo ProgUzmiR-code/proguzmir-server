@@ -45,26 +45,26 @@ app.get("/", (req, res) => {
 // /start komandasi
 bot.onText(/\/start/, async (msg) => {
   const chatId = msg.chat.id;
-  const firstName = msg.from.first_name || "O'yinchi";
+  const firstName = msg.from.first_name || "playng";
 
   const keyboard = {
     inline_keyboard: [
       [
         {
-          text: "🎮 O'YINNI OCHING",
+          text: "🎮 Open the game 🎮",
           web_app: { url: "https://proguzmir.vercel.app/" }
         }
       ]
     ]
   };
 
-  const caption = `Assalomu alaykum, ${firstName}! 👋
+  const caption = `Hi 👋 ${firstName} the is ProgUzmiR! 
 
-ProgUzmiR o'yiniga xush kelibsiz! 🎯
+Welcome to the ProgUzmiR game! 🎯
 
-🪙 Tangani bosing va balansingiz o'sishini kuzating.
-👥 Do'stlaringizni taklif qiling.
-🚀 O'yinni hoziroq boshlang!
+🪙 Click on the coin and watch your balance grow.
+👥 Invite your friends.
+🚀 Start the game now!
 `;
 
   try {
@@ -81,11 +81,14 @@ ProgUzmiR o'yiniga xush kelibsiz! 🎯
       await bot.sendMessage(chatId, caption, {
         reply_markup: keyboard
       });
+      await bot.sendMessage(msg.chat.id, "Xatolik yuz berdi. Keyinroq urinib ko'ring.");
     }
-  } catch (err) {
+  }
+   catch (err) {
     console.error("❌ /start xatosi:", err.message);
   }
 });
+
 
 // Server ishga tushadi
 app.listen(PORT, () => {
