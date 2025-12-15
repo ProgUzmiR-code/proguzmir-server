@@ -1,46 +1,91 @@
-const TelegramBot = require("node-telegram-bot-api");
+import TelegramBot from "node-telegram-bot-api";
+import express from "express";
+import fs from "fs";
+import path from "path";
+import dotenv from "dotenv";
 
-// Token Render Environment Variables dan olinadi
-const bot = new TelegramBot(process.env.BOT_TOKEN, {
-  polling: true
+dotenv.config();
+
+const TOKEN = process.env.BOT_TOKEN;
+const PORT = process.env.PORT || 3000;
+const BASE_URL = process.env.BASE_URL; // Render URL
+
+if (!TOKEN) {
+  throw new Error("❌ BOT_TOKEN topilmadi!");
+}
+
+if (!BASE_URL) {
+  throw new Error("❌ BASE_URL topilmadi! (Render domeni)");
+}
+
+const app = express();
+app.use(express.json());
+
+// Telegram bot (WEBHOOK rejim)
+const bot = new TelegramBot(TOKEN, { webHook: true });
+
+// Webhook ni o‘rnatish
+const WEBHOOK_PATH = `/bot${TOKEN}`;
+const WEBHOOK_URL = `${BASE_URL}${WEBHOOK_PATH}`;
+
+await bot.setWebHook(WEBHOOK_URL);
+console.log("✅ Webhook o‘rnatildi:", WEBHOOK_URL);
+
+// Telegram update qabul qilish
+app.post(WEBHOOK_PATH, (req, res) => {
+  bot.processUpdate(req.body);
+  res.sendStatus(200);
 });
 
+// Health check
+app.get("/", (req, res) => {
+  res.json({ ok: true, status: "Bot ishlamoqda 🚀" });
+});
+
+// /start komandasi
 bot.onText(/\/start/, async (msg) => {
   const chatId = msg.chat.id;
-
-  const photoUrl =
-    "https://raw.githubusercontent.com/ProgUzmiR-code/proguzmir-server/main/welcome.jpg";
-
-  const caption = `👋 Welcome to ProgUzmiR!
-
-🚀 Mini App ni ochish uchun pastdagi tugmani bosing.`;
+  const firstName = msg.from.first_name || "O'yinchi";
 
   const keyboard = {
     inline_keyboard: [
       [
         {
-          text: "🚀 Mini App ni ochish",
-          web_app: {
-            url: "https://proguzmir.vercel.app/"
-          }
+          text: "🎮 O'YINNI OCHING",
+          web_app: { url: "https://proguzmir.vercel.app/" }
         }
       ]
     ]
   };
 
-  try {
-    await bot.sendPhoto(chatId, photoUrl, {
-      caption,
-      reply_markup: keyboard
-    });
-  } catch (err) {
-    console.error("❌ Rasm yuborishda xato:", err.message);
+  const caption = `Assalomu alaykum, ${firstName}! 👋
 
-    // Agar rasm yuborilmasa — oddiy xabar
-    await bot.sendMessage(chatId, caption, {
-      reply_markup: keyboard
-    });
+ProgUzmiR o'yiniga xush kelibsiz! 🎯
+
+🪙 Tangani bosing va balansingiz o'sishini kuzating.
+👥 Do'stlaringizni taklif qiling.
+🚀 O'yinni hoziroq boshlang!
+`;
+
+  try {
+    const photoPath = path.join(process.cwd(), "welcome.png");
+
+    if (fs.existsSync(photoPath)) {
+      await bot.sendPhoto(chatId, fs.createReadStream(photoPath), {
+        caption,
+        reply_markup: keyboard
+      });
+    } else {
+      await bot.sendMessage(chatId, caption, {
+        reply_markup: keyboard
+      });
+    }
+  } catch (err) {
+    console.error("❌ /start xatosi:", err.message);
   }
 });
 
-console.log("✅ Bot ishga tushdi...");
+// Server ishga tushadi
+app.listen(PORT, () => {
+  console.log(`🚀 Server ${PORT}-portda ishlayapti`);
+});
